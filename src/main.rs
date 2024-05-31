@@ -4,6 +4,7 @@
 //TODO: A way to select the "best" moves
 mod game;
 mod utils;
+mod rayattacks;
 use game::*;
 fn main() {
     let fen_string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
