@@ -1,3 +1,5 @@
+use crate::utils::{_bit_scan, _bit_scan_backwards};
+
 type BitBoard = u64;
 
 pub struct Rays {
@@ -105,9 +107,53 @@ fn print_bitboard_to_string(bitboard: BitBoard, mark: Option<usize>) -> String {
     board
 }
 
+fn blocked_ray_attack(ray: BitBoard, ray_family: &Vec<BitBoard>, forward_ray: bool, occupancy: BitBoard) -> BitBoard {
+
+    let overlap = ray & occupancy;
+    let bit_index;
+    if forward_ray {
+        bit_index = _bit_scan(overlap);
+    }
+    else {
+        bit_index = _bit_scan_backwards(overlap);
+    }
+    let ray_after = ray_family[bit_index];
+    ray ^ ray_after
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_blocked_ray() {
+        let mut occupancy = 0;
+        for i in 0..16 {
+            if i==5 {
+                continue;
+            }
+            occupancy |= 1<<i;
+        }
+        occupancy |= 1<<22;
+        for i in 48..64 {
+            if i==57 || i==49 {
+                continue;
+            }
+            occupancy |= 1<<i;
+        }
+        occupancy |= 1<<41;
+        occupancy |= 1<<42;
+        let rays = Rays::initialize();
+        let row = 6;
+        let col = 7;
+        let idx = (row-1)*8+col-1;
+        //occupancy &= rays.nw_rays[idx];
+        println!("{}", print_bitboard_to_string(occupancy, Some(idx)));
+        println!("{}", print_bitboard_to_string(rays.sw_rays[idx], Some(idx)));
+        println!("{}", print_bitboard_to_string(occupancy&rays.sw_rays[idx], Some(idx)));
+        let blocked_ray = blocked_ray_attack(rays.sw_rays[idx], &rays.sw_rays, false, occupancy);
+        println!("{}", print_bitboard_to_string(blocked_ray, Some(idx)));
+    }
 
     #[test]
     fn make_n_ray(){
@@ -133,7 +179,7 @@ mod tests {
         let row = 5;
         let col = 4;
         let idx = (row-1)*8+col-1;
-        println!("{}",print_bitboard_to_string(rays.ne_rays[idx], Some(5*8+4)))
+        println!("{}",print_bitboard_to_string(rays.ne_rays[idx], Some(idx)))
     }
 
     #[test]
