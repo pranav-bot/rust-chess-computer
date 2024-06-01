@@ -5,6 +5,7 @@
 mod game;
 mod utils;
 mod rayattacks;
+mod knightattacks;
 use game::*;
 fn main() {
     let fen_string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";

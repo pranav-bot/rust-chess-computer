@@ -38,6 +38,56 @@ pub fn split_on(s: &str, sep: char) -> (&str, &str) {
     (&s[..], "")
 }
 
+pub type BitBoard = u64;
+
+pub fn print_bitboard_to_string(bitboard: BitBoard, mark: Option<usize>) -> String {
+    let mut row = "".to_owned();
+    let mut board = "".to_owned();
+
+    for i in 0..64 {
+        let value = (bitboard>>i)&1;
+        let s = if value == 0 {
+            ".".to_owned()
+        } else {
+            value.to_string()
+        };
+        match mark {
+            Some(idx) => if i == idx {
+                row.push_str("X");
+            } else {
+                row.push_str(&s);
+            },
+            None => row.push_str(&s),
+        }
+        if (i+1) % 8 == 0 {
+            row.push_str("\n");
+            board.insert_str(0, &row);
+            row.clear();
+        }
+    }
+    board
+}
+
+pub fn print_bitboard(bitboard: BitBoard, marker: Option<usize>) {
+    println!("{}", print_bitboard_to_string(bitboard, marker))
+}
+
+pub fn set_bit_ray(bitboard: BitBoard, row_col: (i64, i64)) -> BitBoard {
+    let row = row_col.0;
+    let col = row_col.1;
+    if row < 1 || row >8 || col < 1 || col >8 {
+        return bitboard;
+    } 
+    bitboard | (1<<((col-1)+(row-1)*8))
+}
+
+pub fn set_bit_knight( row: i32, col: i32) -> BitBoard {
+    if row<1 || row>8 || col<1 || col>8 {
+        return 0;
+    }
+    1<<((col-1)+(row-1)*8)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

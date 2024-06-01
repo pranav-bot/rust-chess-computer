@@ -1,6 +1,4 @@
-use crate::utils::{_bit_scan, _bit_scan_backwards};
-
-type BitBoard = u64;
+use crate::utils::{_bit_scan, _bit_scan_backwards, BitBoard, print_bitboard_to_string, set_bit_ray};
 
 pub struct Rays {
     n_rays: Vec<BitBoard>,
@@ -25,22 +23,13 @@ macro_rules! make_rays {
     }};
 }
 
-fn set_bit(bitboard: BitBoard, row_col: (i64, i64)) -> BitBoard {
-    let row = row_col.0;
-    let col = row_col.1;
-    if row < 1 || row >8 || col < 1 || col >8 {
-        return bitboard;
-    } 
-    bitboard | (1<<((col-1)+(row-1)*8))
-}
-
 macro_rules! define_ray {
     ($name:ident, $offset_fun:expr) => {
         fn $name(row: i64, col: i64) -> BitBoard {
             let mut bitboard = 0;
         
             for offset in 1..=8 {
-                bitboard = set_bit(bitboard, $offset_fun(row, col, offset));
+                bitboard = set_bit_ray(bitboard, $offset_fun(row, col, offset));
             }
             bitboard
         }
@@ -77,34 +66,6 @@ impl Rays {
             se_rays,
         }
     }
-}
-
-fn print_bitboard_to_string(bitboard: BitBoard, mark: Option<usize>) -> String {
-    let mut row = "".to_owned();
-    let mut board = "".to_owned();
-
-    for i in 0..64 {
-        let value = (bitboard>>i)&1;
-        let s = if value == 0 {
-            ".".to_owned()
-        } else {
-            value.to_string()
-        };
-        match mark {
-            Some(idx) => if i == idx {
-                row.push_str("X");
-            } else {
-                row.push_str(&s);
-            },
-            None => row.push_str(&s),
-        }
-        if (i+1) % 8 == 0 {
-            row.push_str("\n");
-            board.insert_str(0, &row);
-            row.clear();
-        }
-    }
-    board
 }
 
 fn blocked_ray_attack(ray: BitBoard, ray_family: &Vec<BitBoard>, forward_ray: bool, occupancy: BitBoard) -> BitBoard {
