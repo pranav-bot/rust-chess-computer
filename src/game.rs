@@ -1,6 +1,6 @@
 use bitflags::bitflags;
 use std::collections::VecDeque;
-use crate::utils::*;
+use crate::{knightattacks::KnightAttacks, utils::*};
 
 type PiecePosition = u64;
 
@@ -53,8 +53,8 @@ pub enum Color {
     Black
 }
 
-#[derive(Debug, PartialEq)]
-enum PieceType {
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum PieceType {
     Pawn,
     Rook,
     Knight,
@@ -63,11 +63,11 @@ enum PieceType {
     King
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Piece {
-    position: PiecePosition,
-    color: Color,
-    piece_type: PieceType
+    pub position: PiecePosition,
+    pub color: Color,
+    pub piece_type: PieceType
 }
 
 impl Piece {
@@ -110,6 +110,7 @@ bitflags! {
     }
 }
 
+#[derive(Debug)]
 pub struct Game {
     pub pieces: Vec<Piece>,
     pub squares: Vec<Square>,
@@ -117,7 +118,8 @@ pub struct Game {
     pub castling_rights: CastlingRights,
     pub en_passant: Option<PiecePosition>,
     pub halfmove_clock: usize,
-    pub fullmove_clock: usize   
+    pub fullmove_clock: usize,
+    pub knight_attacks: KnightAttacks,
 }
 
 impl Game {
@@ -163,7 +165,8 @@ impl Game {
             castling_rights: CastlingRights::ALL,
             en_passant: None,
             halfmove_clock: 0,
-            fullmove_clock: 1
+            fullmove_clock: 1,
+            knight_attacks: KnightAttacks::initialize(),
         };
         let (position, rest) = split_on(fen, ' ');
 
@@ -281,7 +284,8 @@ mod test {
             castling_rights: CastlingRights::ALL,
             en_passant: None,
             halfmove_clock: 0,
-            fullmove_clock: 0
+            fullmove_clock: 0,
+            knight_attacks: KnightAttacks::initialize()
         };
         let mut piece_index = 0;
         let color = Color::White;

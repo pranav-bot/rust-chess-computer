@@ -1,8 +1,10 @@
 use crate::utils::{BitBoard, set_bit, print_bitboard};
-pub struct KnightAttacks(Vec<BitBoard>);
+
+#[derive(Debug)]
+pub struct KnightAttacks(pub Vec<BitBoard>);
 
 impl KnightAttacks {
-    fn initialize() -> Self {
+    pub fn initialize() -> Self {
         let mut attacks = vec![];
 
         for row in 1..=8 {
