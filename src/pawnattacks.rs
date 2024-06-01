@@ -1,3 +1,5 @@
+//TODO: Add diagonal tests
+
 use crate::{utils::{set_bit, BitBoard}, Color};
 
 pub struct PawnAttacks {
@@ -157,5 +159,82 @@ mod tests {
                 }
             }
             }
+        }
+
+        #[test]
+        fn test_diagonal_white() {
+            for row in 2..=7 {
+                for col in 2..=7 {
+                    let bitboard = diagonal_move(row, col, Color::White);
+                    let lsb = _bit_scan(bitboard);
+                    let msb = _bit_scan_backwards(bitboard);
+
+                    let expected_lsb = (col-1-1) + (row+1-1) * 8;
+                    let expected_msb = (col+1-1) + (row+1-1) * 8;
+
+                    assert_eq!(lsb, expected_lsb as usize);
+                    assert_eq!(msb, expected_msb as usize)
+                }
+            }
+        }
+
+        #[test]
+        fn test_diagonal_blac() {
+            for row in 2..=7 {
+                for col in 2..=7 {
+                    let bitboard = diagonal_move(row, col, Color::Black);
+                    let lsb = _bit_scan(bitboard);
+                    let msb = _bit_scan_backwards(bitboard);
+
+                    let expected_lsb = (col-1-1) + (row-1-1) * 8;
+                    let expected_msb = (col+1-1) + (row-1-1) * 8;
+
+                    assert_eq!(lsb, expected_lsb as usize);
+                    assert_eq!(msb, expected_msb as usize)
+                }
+            }
+        }
+
+        #[test]
+        fn test_daigonal_edge_white() {
+            for row in 2..=7 {
+                let col = 1;
+                let bitboard = diagonal_move(row, col, Color::White);
+                let lsb = _bit_scan(bitboard);
+
+                let expected_lsb = (col+1-1) + (row-1+1) * 8;
+                assert_eq!(lsb, expected_lsb as usize);
+
+                let col = 8;
+                let bitboard = diagonal_move(row, col, Color::White);
+                let lsb = _bit_scan(bitboard);
+
+                let expected_lsb = (col-1-1) + (row-1+1) * 8;
+                assert_eq!(lsb, expected_lsb as usize);
+            }
+        }
+
+        #[test]
+        fn test_daigonal_edge_black() {
+            for row in 2..=7 {
+                let col = 1;
+                let bitboard = diagonal_move(row, col, Color::Black);
+                let lsb = _bit_scan(bitboard);
+
+                let expected_lsb = (col+1-1) + (row-1-1) * 8;
+                assert_eq!(lsb, expected_lsb as usize);
+
+                let col = 8;
+                let bitboard = diagonal_move(row, col, Color::White);
+                let lsb = _bit_scan(bitboard);
+
+                let expected_lsb = (col-1-1) + (row+1-1) * 8;
+                assert_eq!(lsb, expected_lsb as usize);
+            }
+        }
+
+        #[test]
+        fn test_pawn_attacks_init() {
+            let pawn_attacks = PawnAttacks::initialize();
         }
     }
