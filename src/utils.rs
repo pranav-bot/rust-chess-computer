@@ -81,7 +81,7 @@ pub fn set_bit_ray(bitboard: BitBoard, row_col: (i64, i64)) -> BitBoard {
     bitboard | (1<<((col-1)+(row-1)*8))
 }
 
-pub fn set_bit_knight( row: i32, col: i32) -> BitBoard {
+pub fn set_bit( row: i32, col: i32) -> BitBoard {
     if row<1 || row>8 || col<1 || col>8 {
         return 0;
     }

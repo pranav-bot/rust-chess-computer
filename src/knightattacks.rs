@@ -1,4 +1,4 @@
-use crate::utils::{print_bitboard_to_string, BitBoard, set_bit_knight, print_bitboard};
+use crate::utils::{BitBoard, set_bit, print_bitboard};
 pub struct KnightAttacks(Vec<BitBoard>);
 
 impl KnightAttacks {
@@ -24,7 +24,7 @@ fn knight_attacks(row: i32, col: i32) -> BitBoard {
     let attack_pairs = [(1,2), (1,-2), (-1,2), (-1,-2), (2,1), (2,-1), (-2,1), (-2,-1)];
     let mut bitboard = 0;
     for (r,c) in attack_pairs {
-        bitboard |= set_bit_knight(row+r, col+c);
+        bitboard |= set_bit(row+r, col+c);
     }
     bitboard
 }
@@ -36,7 +36,6 @@ mod tests {
     #[test]
     fn test_knight_attacks_can_initialize() {
         let knight_attacks = KnightAttacks::initialize();
-
     }
 
     #[test]
