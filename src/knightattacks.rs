@@ -1,6 +1,6 @@
 use crate::utils::{BitBoard, set_bit, print_bitboard};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct KnightAttacks(pub Vec<BitBoard>);
 
 impl KnightAttacks {

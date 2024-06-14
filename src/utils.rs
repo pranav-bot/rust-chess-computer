@@ -19,6 +19,16 @@ pub fn _bit_scan_backwards(bit: u64) -> usize {
     (bit as f64).log2().floor() as usize
 }
 
+pub fn extract_bits(mut bits: u64) -> Vec<usize> {
+    let mut result = vec![];
+    while bits!=0 {
+        let next_bit = _bit_scan(bits);
+        result.push(next_bit);
+        bits ^= 1 << next_bit;
+    }
+    result
+}
+
 // fn bit_scan_simple(mut bit: u64) -> usize {
 //     let mut leading_zeros = 0;
 //     while bit & 1 == 0 {
@@ -149,6 +159,13 @@ mod tests {
             let bit_scan_result = _bit_scan_backwards(bit);
             assert_eq!(highest_bit, bit_scan_result)
         }
+    }
+
+    #[test]
+    fn test_extract_bits() {
+        let input = 1 << 2 | 1 << 5 | 1 << 55;
+        let output = extract_bits(input);
+        assert_eq!(output, vec![2,5,55]);
     }
 }
 
