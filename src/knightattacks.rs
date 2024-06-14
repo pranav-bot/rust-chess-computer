@@ -4,7 +4,7 @@ use crate::utils::{BitBoard, set_bit, print_bitboard};
 pub struct KnightAttacks(pub Vec<BitBoard>);
 
 impl KnightAttacks {
-    pub fn initialize() -> Self {
+    pub fn new() -> Self {
         let mut attacks = vec![];
 
         for row in 1..=8 {
@@ -37,12 +37,12 @@ mod tests {
 
     #[test]
     fn test_knight_attacks_can_initialize() {
-        let knight_attacks = KnightAttacks::initialize();
+        let knight_attacks = KnightAttacks::new();
     }
 
     #[test]
     fn print_knight_attacks() {
-        let knight_attacks = KnightAttacks::initialize();
+        let knight_attacks = KnightAttacks::new();
         print_bitboard(knight_attacks.0[0], Some(0));
         print_bitboard(knight_attacks.0[40], Some(40));
         print_bitboard(knight_attacks.0[17], Some(17));

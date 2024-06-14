@@ -1,7 +1,7 @@
 use bitflags::bitflags;
 
 use std::collections::VecDeque;
-use crate::{knightattacks::KnightAttacks, utils::*};
+use crate::utils::*;
 
 type PiecePosition = u64;
 
@@ -113,7 +113,7 @@ bitflags! {
 }
 
 #[derive(Debug, Clone)]
-pub struct Game {
+pub struct Position {
     pub pieces: Vec<Piece>,
     pub squares: Vec<Square>,
     pub active_color: Color,
@@ -121,12 +121,11 @@ pub struct Game {
     pub en_passant: Option<PiecePosition>,
     pub halfmove_clock: usize,
     pub fullmove_clock: usize,
-    pub knight_attacks: KnightAttacks,
     pub white_occupancy: BitBoard,
     pub black_occupancy: BitBoard
 }
 
-impl Game {
+impl Position {
 
     fn push_piece_and_square(&mut self, position: usize, color: Color, piece_type: PieceType, index: &mut usize) {
         self.pieces.push(Piece {position: (1 as u64)<<position, color: color, piece_type});
@@ -143,8 +142,8 @@ impl Game {
         self.squares.push(Square::Empty)
     }
 
-    fn initialize() -> Game {
-        Game::read_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+    pub fn new() -> Position {
+        Position::read_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     }
 
     pub fn to_string(&self) -> String {
@@ -166,8 +165,8 @@ impl Game {
         board
     }
 
-    pub fn read_fen(fen: &str) -> Game {
-        let mut game = Game {
+    pub fn read_fen(fen: &str) -> Position {
+        let mut game = Position {
             pieces: vec![],
             squares: vec![],
             active_color: Color::White,
@@ -175,7 +174,6 @@ impl Game {
             en_passant: None,
             halfmove_clock: 0,
             fullmove_clock: 1,
-            knight_attacks: KnightAttacks::initialize(),
             white_occupancy: 0,
             black_occupancy: 0
         };
@@ -245,7 +243,7 @@ impl Game {
         game
     }
 
-    pub fn move_piece(self: &mut Self, mut piece_position: BitBoard, new_position: usize) {
+    pub fn move_piece(self: &mut Self, piece_position: BitBoard, new_position: usize) {
         let square_index = _bit_scan(piece_position);
         let square = self.squares[square_index];
         let piece_index = match square {
@@ -314,12 +312,11 @@ fn parse_row(row: &str, mut piece_index: usize, mut piece_position: usize) -> (V
 
 #[cfg(test)]
 mod test {
-    use std::io::Empty;
 
     use super::*;
 
-    fn get_initial_position() -> Game {
-        let mut game = Game {
+    fn get_initial_position() -> Position {
+        let mut game = Position {
             pieces: vec![],
             squares: vec![],
             active_color: Color::White,
@@ -327,7 +324,6 @@ mod test {
             en_passant: None,
             halfmove_clock: 0,
             fullmove_clock: 0,
-            knight_attacks: KnightAttacks::initialize(),
             white_occupancy: 0,
             black_occupancy: 0
         };
@@ -365,7 +361,7 @@ mod test {
 
     #[test]
     fn read_initial_position() {
-        let game = Game::initialize();
+        let game = Position::new();
         let default = get_initial_position();
         assert_eq!(game.active_color, Color::White);
         assert_eq!(game.castling_rights, CastlingRights::ALL);
@@ -383,26 +379,26 @@ mod test {
 
     #[test]
     fn read_fen_black_active() {
-        let game = Game::read_fen("rnbqkbnr/pp1ppppp/8/2p4/4P3/5N2/PPPP1PPP/RNBQKB1R b - - 1 2");
+        let game = Position::read_fen("rnbqkbnr/pp1ppppp/8/2p4/4P3/5N2/PPPP1PPP/RNBQKB1R b - - 1 2");
         assert_eq!(game.active_color, Color::Black);
     }
 
     #[test]
     fn read_fen_no_castling() {
-        let game = Game::read_fen("rnbqkbnr/pp1ppppp/8/2p4/4P3/5N2/PPPP1PPP/RNBQKB1R b - - 1 2");
+        let game = Position::read_fen("rnbqkbnr/pp1ppppp/8/2p4/4P3/5N2/PPPP1PPP/RNBQKB1R b - - 1 2");
         assert_eq!(game.castling_rights, CastlingRights::NONE);
     }
 
     #[test]
     fn read_fen_en_passant_allowed() {
         let en_passant_square = "g7";
-        let game = Game::read_fen(&format!("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq {} 1 2", en_passant_square));
+        let game = Position::read_fen(&format!("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq {} 1 2", en_passant_square));
         assert_eq!(game.en_passant, Some(position_to_bit(en_passant_square).unwrap()))
     }
 
     #[test]
     fn read_fen_moveclocks() {
-        let game = Game::read_fen("rnbqkbnr/pp1ppppp/7P/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b - g7 1 2");
+        let game = Position::read_fen("rnbqkbnr/pp1ppppp/7P/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b - g7 1 2");
         assert_eq!(game.halfmove_clock, 1);
         assert_eq!(game.fullmove_clock, 2);
     }
@@ -419,7 +415,7 @@ mod test {
                 }
             }
             let fen = format!("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w {} - 0 1", rights);
-            let game = Game::read_fen(&fen);
+            let game = Position::read_fen(&fen);
             assert_eq!(game.castling_rights, bitflag_rights, "FEN: {}\n\n i: {}", fen, i);
             rights.clear();
         }
@@ -427,7 +423,7 @@ mod test {
 
     #[test]
     fn test_occupancy_start_position() {
-        let start = Game::initialize();
+        let start = Position::new();
         let mut white_occupancy = 0;
         for i in 0..16 {
             white_occupancy |= 1 << i;
@@ -442,7 +438,7 @@ mod test {
 
     #[test]
     fn test_move_piece() {
-        let mut game = Game::initialize();
+        let mut game = Position::new();
         game.move_piece(1<<0, 16);
         assert_eq!(game.pieces[24].position, 1 << 16);
         assert_eq!(game.squares[0], Square::Empty);
